@@ -880,7 +880,7 @@ define method emit-prototype-for
   let info = get-info-for(defn, file);
   let stream = file.file-body-stream;
   let rep = info.backend-var-info-rep;
-  if (instance?(rep, <immediate-representation>))
+  if (instance?(rep, <immediate-c-representation>))
     format(stream, "extern %s %s;\t/* %s */\n\n",
 	   rep.representation-c-type,
 	   info.backend-var-info-name,
@@ -984,7 +984,7 @@ define method make-info-for (defn :: <definition>, file :: <file-state>)
 	      *general-rep*;
 	    end;
   let da-c-name = new-c-global(defn.defn-name, file);
-  if (instance?(rep, <immediate-representation>))
+  if (instance?(rep, <immediate-c-representation>))
     make(<backend-var-info>, representation: rep, name: da-c-name);
   else
     new-root(if (instance?(defn, <variable-definition>))
@@ -1839,7 +1839,7 @@ define method emit-definition-gunk
   let info = get-info-for(defn, file);
   let stream = file.file-body-stream;
   let rep = info.backend-var-info-rep;
-  if (instance?(rep, <immediate-representation>))
+  if (instance?(rep, <immediate-c-representation>))
     let name = info.backend-var-info-name;
     format(stream, "%s %s = ", rep.representation-c-type, name);
     let init-value = if (instance?(defn, <variable-definition>))
@@ -3084,8 +3084,8 @@ define method emit-assignment
 	let c-type = slot-rep.representation-c-type;
 	stringify("SLOT(", instance, ", ", c-type, ", ",
 		  offset, " + ", index, " * sizeof(", c-type, "))");
-      elseif (instance?(instance-rep, <immediate-representation>)
-		& instance?(slot-rep, <immediate-representation>))
+      elseif (instance?(instance-rep, <immediate-c-representation>)
+		& instance?(slot-rep, <immediate-c-representation>))
 	assert(instance-rep == slot-rep);
 	let (temps, instance, offset)
 	  = extract-operands(op, file, instance-rep, *long-rep*);
@@ -3121,7 +3121,7 @@ define method emit-assignment
   let instance-rep = pick-representation(instance-leaf.derived-type, #"speed");
 
   let (expr, temp?)
-    = if (instance?(instance-rep, <general-representation>))
+    = if (instance?(instance-rep, <general-c-representation>))
 	// The instance is currently being represented with the general
 	// representation, either because the instance has both heap slots and
 	// a data-word slot, or because we still need the type info.  We just
@@ -3521,7 +3521,7 @@ define function aux-c-expr-and-rep
     make-global-root();
   else
     let best-rep = pick-representation(lit.ct-value-cclass, #"speed");
-    if (instance?(best-rep, <heap-representation>))
+    if (instance?(best-rep, <c-heap-representation>))
       let labels = info.const-info-heap-labels;
       if (labels.empty?) // suggest a label for lit
 	let label = object-label(lit)
@@ -3641,28 +3641,28 @@ define method c-expr-and-rep
 end;
 
 define method c-expr-and-rep
-    (lit :: <literal-true>, rep-hint :: <heap-representation>,
+    (lit :: <literal-true>, rep-hint :: <c-heap-representation>,
      file :: <file-state>)
     => (name :: <string>, rep :: <c-representation>);
   values("obj_True", rep-hint);
 end;
 
 define method c-expr-and-rep
-    (lit :: <literal-false>, rep-hint :: <heap-representation>,
+    (lit :: <literal-false>, rep-hint :: <c-heap-representation>,
      file :: <file-state>)
     => (name :: <string>, rep :: <c-representation>);
   values("obj_False", rep-hint);
 end;
 
 define method c-expr-and-rep
-    (lit :: <literal-true>, rep-hint :: <immediate-representation>,
+    (lit :: <literal-true>, rep-hint :: <immediate-c-representation>,
      file :: <file-state>)
     => (name :: <string>, rep :: <c-representation>);
   values("TRUE", rep-hint);
 end;
 
 define method c-expr-and-rep
-    (lit :: <literal-false>, rep-hint :: <immediate-representation>,
+    (lit :: <literal-false>, rep-hint :: <immediate-c-representation>,
      file :: <file-state>)
     => (name :: <string>, rep :: <c-representation>);
   values("FALSE", rep-hint);
@@ -3686,7 +3686,7 @@ define method c-expr-and-rep (lit :: <literal-integer>,
 end;
 
 define method c-expr-and-rep (lit :: <literal-single-float>,
-			      rep-hint :: <immediate-representation>,
+			      rep-hint :: <immediate-c-representation>,
 			      file :: <file-state>)
     => (name :: <string>, rep :: <c-representation>);
   values(float-to-string(lit.literal-value, 8),
@@ -3694,7 +3694,7 @@ define method c-expr-and-rep (lit :: <literal-single-float>,
 end;
 
 define method c-expr-and-rep (lit :: <literal-double-float>,
-			      rep-hint :: <immediate-representation>,
+			      rep-hint :: <immediate-c-representation>,
 			      file :: <file-state>)
     => (name :: <string>, rep :: <c-representation>);
   values(float-to-string(lit.literal-value, 18),
@@ -3702,7 +3702,7 @@ define method c-expr-and-rep (lit :: <literal-double-float>,
 end;
 
 define method c-expr-and-rep (lit :: <literal-extended-float>,
-			      rep-hint :: <immediate-representation>,
+			      rep-hint :: <immediate-c-representation>,
 			      file :: <file-state>)
     => (name :: <string>, rep :: <c-representation>);
   values(float-to-string(lit.literal-value, 36),
@@ -3808,8 +3808,8 @@ define generic emit-copy
     => ();
 
 define method emit-copy
-    (target :: <string>, target-rep :: <general-representation>,
-     source :: <string>, source-rep :: <general-representation>,
+    (target :: <string>, target-rep :: <general-c-representation>,
+     source :: <string>, source-rep :: <general-c-representation>,
      file :: <file-state>)
     => ();
   let stream = file.file-guts-stream;
@@ -3817,7 +3817,7 @@ define method emit-copy
 end;
 
 define method emit-copy
-    (target :: <string>, target-rep :: <general-representation>,
+    (target :: <string>, target-rep :: <general-c-representation>,
      source :: <string>, source-rep :: <c-data-word-representation>,
      file :: <file-state>)
     => ();
@@ -3833,7 +3833,7 @@ define method emit-copy
 end;
 
 define method emit-copy
-    (target :: <string>, target-rep :: <general-representation>,
+    (target :: <string>, target-rep :: <general-c-representation>,
      source :: <string>, source-rep :: <c-representation>,
      file :: <file-state>)
     => ();
@@ -3868,7 +3868,7 @@ end;
 // conversion-expr
 
 define method conversion-expr
-    (target-rep :: <general-representation>,
+    (target-rep :: <general-c-representation>,
      source :: <string>, source-rep :: <c-representation>,
      file :: <file-state>)
     => (res :: <string>, temp? :: <boolean>);

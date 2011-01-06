@@ -594,10 +594,10 @@ begin
   register-object-id(#"constant-method-info", #x00E4);
   register-object-id(#"constant-callback-function-info", #x0149);
 
-  register-object-id(#"general-representation", #x00E8);
-  register-object-id(#"heap-representation", #x00E9);
-  register-object-id(#"immediate-representation", #x00EA);
-  register-object-id(#"data-word-representation", #x00EB);
+  register-object-id(#"general-c-representation", #x00E8);
+  register-object-id(#"c-heap-representation", #x00E9);
+  register-object-id(#"immediate-c-representation", #x00EA);
+  register-object-id(#"c-data-word-representation", #x00EB);
 
   register-object-id(#"define-library-tlf", #x00F0);
   register-object-id(#"define-module-tlf", #x00F1);
