@@ -28,28 +28,43 @@ copyright: see below
 //
 //======================================================================
 
-define abstract class <representation> (<object>)
-end;
+define abstract open class <representation> (<object>)
+end class <representation>;
 
-define abstract class <data-word-representation> (<representation>)
-end;
+define abstract open class <general-representation> (<representation>)
+end class <general-representation>;
 
-define generic pick-representation
+define abstract open class <heap-representation> (<representation>)
+end class <heap-representation>;
+
+define abstract open class <data-word-representation> (<representation>)
+end class <data-word-representation>;
+
+define abstract open class <immediate-representation> (<representation>)
+end class <immediate-representation>;
+
+
+define open generic pick-representation
     (type :: <ctype>, optimize-for :: one-of(#"speed", #"space"))
     => res :: <representation>;
 
-define generic representation-alignment (rep :: <representation>)
+define open generic representation-alignment (rep :: <representation>)
     => alignment :: <integer>;
 
-define generic representation-size (rep :: <representation>)
+define open generic representation-size (rep :: <representation>)
     => size :: <integer>;
 
-define generic representation-has-bottom-value? (rep :: <representation>)
+define open generic representation-has-bottom-value? (rep :: <representation>)
     => res :: <boolean>;
 
-define generic use-data-word-representation
+define open generic use-data-word-representation
     (class :: <cclass>, data-word-type :: <ctype>) => ();
 
-define generic use-general-representation
+define open generic use-general-representation
     (class :: <cclass>) => ();
 
+define open generic is-heap-representation?
+    (rep :: <representation>) => (res :: <boolean>);
+
+define open generic is-general-representation?
+    (rep :: <representation>) => (res :: <boolean>);

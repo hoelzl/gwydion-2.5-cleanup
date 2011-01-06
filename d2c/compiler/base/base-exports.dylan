@@ -39,6 +39,7 @@ define library compiler-base
   use string-extensions;
   use table-extensions, export: all;
 
+  export backend;
   export c-representation;
   export classes;
   export common;
@@ -380,6 +381,13 @@ define module header
     header-add, header-add-new, header-concatenate;
 end;
 
+define module backend
+  use common;
+
+  export
+    <compiler-backend>,
+    compiler-backend, compiler-backend-setter;
+end;
 
 define module platform
   use common;
@@ -650,10 +658,13 @@ define module representation
   use forwards, import: {<cclass>};
 
   export
-    <representation>, <data-word-representation>,
+    <representation>, <general-representation>, 
+    <heap-representation>, <data-word-representation>,
+    <immediate-representation>,
     pick-representation, representation-alignment, representation-size,
     representation-has-bottom-value?,
-    use-data-word-representation, use-general-representation;
+    use-data-word-representation, use-general-representation,
+    is-heap-representation?, is-general-representation?;
 end;
 
 define module classes
@@ -783,9 +794,9 @@ define module c-representation
     representation-to-more-general, representation-from-more-general,
     representation-c-type,
 
-    <general-representation>,
-    <heap-representation>,
-    <immediate-representation>,
+    <general-c-representation>,
+    <c-heap-representation>,
+    <immediate-c-representation>,
     <magic-representation>,
     <c-data-word-representation>,
 

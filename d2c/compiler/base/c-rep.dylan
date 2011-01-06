@@ -92,19 +92,22 @@ define method print-object (rep :: <c-representation>, stream :: <stream>)
   pprint-fields(rep, stream, c-type: rep.representation-c-type);
 end method print-object;
 
-define class <general-representation> (<c-representation>)
+define class <general-c-representation>
+    (<c-representation>, <general-representation>)
   inherited slot representation-to-more-general, init-value: #f;
   inherited slot representation-from-more-general, init-value: #f;
-end class <general-representation>;
+end class <general-c-representation>;
 
-define class <heap-representation> (<c-representation>)
-end class <heap-representation>;
+define class <c-heap-representation>
+    (<c-representation>, <heap-representation>)
+end class <c-heap-representation>;
 
-define class <immediate-representation> (<c-representation>)
-end class <immediate-representation>;
+define class <immediate-c-representation>
+    (<c-representation>, <immediate-representation>)
+end class <immediate-c-representation>;
 
 define method representation-has-bottom-value?
-    (res :: <immediate-representation>)
+    (res :: <immediate-c-representation>)
     => res :: <boolean>;
   #f;
 end method representation-has-bottom-value?;
@@ -113,7 +116,7 @@ define class <magic-representation> (<c-representation>)
 end class <magic-representation>;
 
 define class <c-data-word-representation>
-    (<immediate-representation>, <data-word-representation>)
+    (<immediate-c-representation>, <data-word-representation>)
   slot representation-class :: <cclass>, init-keyword: class:;
   slot representation-data-word-member :: <byte-string>,
     required-init-keyword: data-word-member:;
@@ -139,6 +142,15 @@ define variable *float-rep* :: false-or(<c-representation>) = #f;
 define variable *double-rep* :: false-or(<c-representation>) = #f;
 define variable *long-double-rep* :: false-or(<c-representation>) = #f;
 
+define sealed method is-general-representation?
+    (rep :: <c-representation>) => (res :: <boolean>);
+  rep == *general-rep*;
+end method is-general-representation?;
+
+define sealed method is-heap-representation?
+    (rep :: <c-representation>) => (res :: <boolean>);
+  rep == *heap-rep*;
+end method is-heap-representation?;
 
 define method seed-representations () => ();
   local
@@ -192,27 +204,27 @@ define method seed-representations () => ();
 
   unless (*general-rep*)
     *general-rep*
-      := make(<general-representation>, name: #"general",
+      := make(<general-c-representation>, name: #"general",
 	      alignment: *pointer-alignment*,
 	      size: *pointer-size* + *data-word-size*,
 	      c-type: "descriptor_t");
   end;
   unless (*heap-rep*)
     *heap-rep*
-      := make(<heap-representation>, name: #"heap",
+      := make(<c-heap-representation>, name: #"heap",
 	      alignment: *pointer-alignment*, size: *pointer-size*,
 	      c-type: "heapptr_t", more-general: *general-rep*,
 	      to-more-general: #f, from-more-general: "%s.heapptr");
   end;
   unless (*boolean-rep*)
     *boolean-rep*
-      := make(<immediate-representation>, name: #"boolean",
+      := make(<immediate-c-representation>, name: #"boolean",
 	      more-general: *heap-rep*,
 	      to-more-general: "(%s ? obj_True : obj_False)",
 	      from-more-general: "(%s != obj_False)",
 	      alignment: *int-alignment*, size: *int-size*,
 	      c-type: "int");
-    let space-rep = make(<immediate-representation>, name: #"boolean-char", 
+    let space-rep = make(<immediate-c-representation>, name: #"boolean-char", 
 			 more-general: *boolean-rep*,
 			 alignment: 1, size: 1, c-type: "char");
     set-representations(dylan-value(#"<boolean>"), *boolean-rep*, space-rep);
@@ -223,14 +235,14 @@ define method seed-representations () => ();
     let double-int-cclass = dylan-value(#"<double-integer>");
     if (*long-long-size*)
       *long-long-rep*
-        := make(<immediate-representation>, name: #"long-long",
+        := make(<immediate-c-representation>, name: #"long-long",
                 alignment: *long-long-alignment*, size: *long-long-size*,
                 more-general: *heap-rep*, c-type: "long long",
                 to-more-general: "make_double_integer(%s)",
                 from-more-general: "double_integer_value(%s)");
     else
       *long-long-rep*
-        := make(<immediate-representation>, name: #"long-long",
+        := make(<immediate-c-representation>, name: #"long-long",
                 alignment: *long-alignment*, size: *long-size* + *long-size*,
                 more-general: *heap-rep*, c-type: "gd_long_long",
                 to-more-general: "make_double_integer(%s)",
@@ -302,7 +314,7 @@ define method seed-representations () => ();
     let df-rep
       = if (*double-size* > *data-word-size*
               | *double-alignment* > *data-word-alignment*)
-	  make(<immediate-representation>, name: #"double",
+	  make(<immediate-c-representation>, name: #"double",
 	       more-general: *heap-rep*,
 	       to-more-general: "make_double_float(%s)",
 	       from-more-general: "double_float_value(%s)",
@@ -323,7 +335,7 @@ define method seed-representations () => ();
     let xf-rep
       = if (*long-double-size* > *data-word-size*
               | *long-double-alignment* > *data-word-alignment*)
-	  make(<immediate-representation>, name: #"long-double",
+	  make(<immediate-c-representation>, name: #"long-double",
 	       more-general: *heap-rep*,
 	       to-more-general: "make_extended_float(%s)",
 	       from-more-general: "extended_float_value(%s)",
@@ -497,8 +509,8 @@ define method general-representation
       block (return)
 	for (direct-class in direct-classes)
 	  let direct-rep = direct-representation(direct-class, optimize-for);
-	  if (instance?(direct-rep, <data-word-representation>)
-		| instance?(direct-rep, <general-representation>))
+	  if (instance?(direct-rep, <c-data-word-representation>)
+		| instance?(direct-rep, <general-c-representation>))
 	    return(*general-rep*);
 	  end if;
 	end for;
@@ -666,16 +678,16 @@ define constant $rep-slots
 	 representation-size, size:, #f,
 	 representation-c-type, c-type:, #f);
 
-add-make-dumper(#"general-representation", *compiler-dispatcher*,
-		<general-representation>, $rep-slots, load-external: #t);
+add-make-dumper(#"general-c-representation", *compiler-dispatcher*,
+		<general-c-representation>, $rep-slots, load-external: #t);
 
-add-make-dumper(#"heap-representation", *compiler-dispatcher*,
-		<heap-representation>, $rep-slots, load-external: #t);
+add-make-dumper(#"c-heap-representation", *compiler-dispatcher*,
+		<c-heap-representation>, $rep-slots, load-external: #t);
 
-add-make-dumper(#"immediate-representation", *compiler-dispatcher*,
-		<immediate-representation>, $rep-slots, load-external: #t);
+add-make-dumper(#"immediate-c-representation", *compiler-dispatcher*,
+		<immediate-c-representation>, $rep-slots, load-external: #t);
 
-add-make-dumper(#"data-word-representation", *compiler-dispatcher*,
+add-make-dumper(#"c-data-word-representation", *compiler-dispatcher*,
 		<c-data-word-representation>,
 		concatenate($rep-slots,
 			    list(representation-class, class:,
@@ -687,11 +699,11 @@ add-make-dumper(#"data-word-representation", *compiler-dispatcher*,
 
 // Seals for file c-rep.dylan
 
-// <general-representation> -- subclass of <c-representation>
-define sealed domain make(singleton(<general-representation>));
-// <heap-representation> -- subclass of <c-representation>
-define sealed domain make(singleton(<heap-representation>));
-// <immediate-representation> -- subclass of <c-representation>
-define sealed domain make(singleton(<immediate-representation>));
-// <c-data-word-representation> -- subclass of <immediate-representation>
+// <general-c-representation> -- subclass of <c-representation>
+define sealed domain make(singleton(<general-c-representation>));
+// <c-heap-representation> -- subclass of <c-representation>
+define sealed domain make(singleton(<c-heap-representation>));
+// <immediate-c-representation> -- subclass of <c-representation>
+define sealed domain make(singleton(<immediate-c-representation>));
+// <c-data-word-representation> -- subclass of <immediate-c-representation>
 define sealed domain make(singleton(<c-data-word-representation>));

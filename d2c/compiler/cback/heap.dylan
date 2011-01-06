@@ -277,26 +277,26 @@ define method spew-reference
   end if;
 end;
 
-// spew-reference{<literal>,<immediate-representation>}
+// spew-reference{<literal>,<immediate-c-representation>}
 //
 // Representing a literal as an immediate is easy.
 //
 define method spew-reference
-    (object :: <literal-true>, rep :: <immediate-representation>,
+    (object :: <literal-true>, rep :: <immediate-c-representation>,
      tag :: <byte-string>, state :: <file-state>)
     => ();
   format(state.file-guts-stream, "1 /* %s */", tag.clean-for-comment)
 end;
 
 define method spew-reference
-    (object :: <literal-false>, rep :: <immediate-representation>,
+    (object :: <literal-false>, rep :: <immediate-c-representation>,
      tag :: <byte-string>, state :: <file-state>)
     => ();
   format(state.file-guts-stream, "0 /* %s */", tag.clean-for-comment)
 end;
 
 define method spew-reference
-    (object :: <literal-integer>, rep :: <immediate-representation>,
+    (object :: <literal-integer>, rep :: <immediate-c-representation>,
      tag :: <byte-string>, state :: <file-state>)
     => ();
   let val = object.literal-value;
@@ -312,7 +312,7 @@ define method spew-reference
 end;
 
 define method spew-reference
-    (object :: <literal-single-float>, rep :: <immediate-representation>,
+    (object :: <literal-single-float>, rep :: <immediate-c-representation>,
      tag :: <byte-string>, state :: <file-state>)
     => ();
   format(state.file-guts-stream, "%s /* %s */",
@@ -320,7 +320,7 @@ define method spew-reference
 end;
 
 define method spew-reference
-    (object :: <literal-double-float>, rep :: <immediate-representation>,
+    (object :: <literal-double-float>, rep :: <immediate-c-representation>,
      tag :: <byte-string>, state :: <file-state>)
     => ();
   format(state.file-guts-stream, "%s /* %s */",
@@ -328,7 +328,7 @@ define method spew-reference
 end;
 
 define method spew-reference
-    (object :: <literal-extended-float>, rep :: <immediate-representation>,
+    (object :: <literal-extended-float>, rep :: <immediate-c-representation>,
      tag :: <byte-string>, state :: <file-state>)
     => ();
   format(state.file-guts-stream, "%s /* %s */",
@@ -336,19 +336,19 @@ define method spew-reference
 end;
 
 define method spew-reference
-    (object :: <literal-character>, rep :: <immediate-representation>,
+    (object :: <literal-character>, rep :: <immediate-c-representation>,
      tag :: <byte-string>, state :: <file-state>)
     => ();
   format(state.file-guts-stream, "%d /* %s */",
 	 as(<integer>, object.literal-value), tag)
 end;
 
-// spew-reference{<ct-value>,<general-representation>}
+// spew-reference{<ct-value>,<general-c-representation>}
 //
 // Dump the full dual-word representation of the object.
 // 
 define method spew-reference
-    (object :: <ct-value>, rep :: <general-representation>,
+    (object :: <ct-value>, rep :: <general-c-representation>,
      tag :: <byte-string>, state :: <file-state>)
     => ();
   let cclass = object.ct-value-cclass;
@@ -387,13 +387,13 @@ define method spew-reference
   end select;
 end;
 
-// spew-reference{<proxy>,<general-representation>}
+// spew-reference{<proxy>,<general-c-representation>}
 //
 // Reference the heap proxy object.  This method is needed because cback will
 // put proxy objects in the roots vector in order to reference them.
 //
 define method spew-reference
-    (object :: <proxy>, rep :: <general-representation>,
+    (object :: <proxy>, rep :: <general-c-representation>,
      tag :: <byte-string>, state :: <file-state>)
     => ();
   let object-name = object-name(object, state);
@@ -402,12 +402,12 @@ define method spew-reference
 	 object-name, tag.clean-for-comment);
 end;
 
-// spew-reference{<ct-value>,<heap-representation>}
+// spew-reference{<ct-value>,<c-heap-representation>}
 //
 // Dump a heap pointer to the object.
 // 
 define method spew-reference
-    (object :: <ct-value>, rep :: <heap-representation>,
+    (object :: <ct-value>, rep :: <c-heap-representation>,
      tag :: <byte-string>, state :: <file-state>) => ();
   let object-name = object-name(object, state);
   spew-heap-prototype(object-name, object, state);
@@ -415,15 +415,15 @@ define method spew-reference
 	 object-name, tag.clean-for-comment);
 end;
 
-// spew-reference{<ct-entry-point>,<immediate-representation>}
+// spew-reference{<ct-entry-point>,<immediate-c-representation>}
 //
 // When reference entry points, we are really referencing the C function
 // that encodes the entry.  So instead of using raw-bits (as in the
-// general <immediate-representation> method above) we just emit the name
+// general <immediate-c-representation> method above) we just emit the name
 // of the C function.
 // 
 define method spew-reference
-    (object :: <ct-entry-point>, rep :: <immediate-representation>,
+    (object :: <ct-entry-point>, rep :: <immediate-c-representation>,
      tag :: <byte-string>, state :: <file-state>)
     => ();
   let info = get-info-for(object.ct-entry-point-for, state);
@@ -439,12 +439,12 @@ define method spew-reference
          name, tag.clean-for-comment);
 end;
 
-// spew-reference{<ct-entry-point>,<general-representation>}
+// spew-reference{<ct-entry-point>,<general-c-representation>}
 //
 // Likewise for general rep references.
 // 
 define method spew-reference
-    (object :: <ct-entry-point>, rep :: <general-representation>,
+    (object :: <ct-entry-point>, rep :: <general-c-representation>,
      tag :: <byte-string>, state :: <file-state>)
     => ();
   let proxy = make(<proxy>, for: object.ct-value-cclass);

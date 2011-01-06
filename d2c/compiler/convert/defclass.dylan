@@ -3122,9 +3122,9 @@ define method slot-accessor-standin
   elseif (find-slot-offset(slot, slot.slot-introduced-by))
     let rep = slot.slot-representation;
     let standin-name :: false-or(<symbol>)
-      = if (rep == *general-rep*)
+      = if (rep.is-general-representation?)
           symcat("general-rep-", kind);
-        elseif (rep == *heap-rep*)
+        elseif (rep.is-heap-representation?)
           symcat("heap-rep-", kind);
         else
           #f;
@@ -3152,9 +3152,9 @@ define method slot-accessor-standin // used for spew-object (cback)FIXME relevan
 //  if (find-slot-offset(meta-slot /*slot*/, meta-class /*slot.slot-introduced-by*/))
 /*    let rep = meta-slot.slot-representation;
     let standin-name :: false-or(<symbol>)
-      = if (rep == *general-rep*)
+      = if (rep.is-general-representation?)
           symcat("general-rep-", kind);
-        elseif (rep == *heap-rep*)
+        elseif (rep.is-heap-representation?)
           symcat("heap-rep-", kind);
         else
           #f;
