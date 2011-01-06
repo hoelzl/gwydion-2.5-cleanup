@@ -1,4 +1,4 @@
-module: define-classes
+module: convert-designator-classes
 copyright: see below
 
 //======================================================================
