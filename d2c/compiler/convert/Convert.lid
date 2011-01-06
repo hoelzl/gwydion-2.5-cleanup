@@ -11,5 +11,4 @@ Files: convert-exports
        deffunc
        defconstvar
        defclass
-       defdclass
        tlexpr

@@ -36,6 +36,7 @@ define library compiler-convert
   use compiler-parser;
 
   export
+    lexenv, compile-time-eval, expanders,
     define-classes, define-libraries-and-modules, define-functions,
     fer-convert, top-level-expressions,
     
@@ -329,16 +330,58 @@ define module define-classes
   use abstract-optimizer;
 
   export
-    class-defn-overrides, class-defn-slots,
-
-    slot-definition-info,
-
-    slot-definition-info, slot-definition-allocation, slot-definition-getter, slot-definition-setter,
+    <define-class-parse>,
+    defclass-name, defclass-superclass-exprs,
+    defclass-slots, defclass-options,
     
+    <abstract-slot-parse>, <slot-parse>,
+    slot-parse-name, slot-parse-options,
+    <inherited-slot-parse>,
+    inherited-slot-parse-name, inherited-slot-parse-options,
+    <init-arg-parse>,
+    init-arg-parse-keyword, init-arg-parse-options,
+    extract-keyword,
+
+    <real-class-definition>,
+    class-defn-cclass, 
+
+    <local-class-definition>,
+    class-defn-supers, class-defn-sealed?,
+    class-defn-abstract?, class-defn-abstract?-setter,
+    class-defn-primary?, class-defn-slots,
+    class-defn-overrides, class-defn-keywords,
+    
+    <abstract-slot-definition>,
+    slot-definition-class, slot-definition-class-setter,
+    slot-definition-init-value, slot-definition-init-function,
+    slot-definition-info, slot-definition-info-setter,
+  
     // for browser support:
-    <slot-definition>, slot-definition-getter-name,
-    class-defn-cclass,
-    <local-class-definition>;
+    <slot-definition>, 
+    slot-definition-getter-name, slot-definition-sealed?,
+    slot-definition-allocation, slot-definition-type,
+    slot-definition-getter, slot-definition-getter-setter,
+    slot-definition-setter-name,
+    slot-definition-setter, slot-definition-setter-setter,
+    slot-definition-init-keyword,
+    slot-definition-init-keyword-required?,
+    slot-definition-sizer-definition,
+    slot-definition-zero-terminate?,
+
+    <override-definition>,
+    override-definition-getter-name,
+
+    <keyword-definition>,
+    keyword-definition-symbol, keyword-definition-required?,
+    keyword-definition-type,
+
+    <maker-function-definition>, <init-function-definition>,
+    
+    extract-slot, process-slot,
+    compute-cclass, compute-slot, compute-override, compute-keyword,
+    inhibits-functional-classes?,
+
+    $class-definition-slots;
 end;
 
 define module top-level-expressions

@@ -54,6 +54,50 @@ define module stack-analysis
     analyze-stack-usage;
 end;
 
+define module convert-designator-classes
+  // TODO: Remove unused entries.
+  use common;
+  use utils;
+  use source;
+  use errors;
+  use compile-time-values;
+  use tokens;
+  use names;
+  use definitions;
+  use variables;
+  use ctype;
+  use classes;
+  use compile-time-functions;
+  use od-format;
+  use representation;
+
+  use top-level-forms;
+  use builder-interface;
+  use signature-interface;
+  use front,
+    import: {<heap-slot-ref>, <data-word-ref>, <heap-slot-set>,
+       <uninitialized-value>, <primitive>, <fer-function-region>,
+       <function-literal>, <method-literal>};
+  use c-representation;
+  use function-definitions;
+
+  use source-utilities;
+  use fragments;
+  use parse-tree;
+  use parser;
+  use macros;
+
+  use lexenv;
+  use compile-time-eval;
+  use expanders;
+  use fer-convert;
+  use define-constants-and-variables;
+  use define-functions;
+
+  use abstract-optimizer;
+
+  use define-classes;
+end module convert-designator-classes;
 
 define module cback
   use indenting-streams;
