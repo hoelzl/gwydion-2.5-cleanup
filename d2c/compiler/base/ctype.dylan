@@ -51,14 +51,14 @@ type <object>. This is the result type of an unconstrained function.
 */
 
 /// Superclass of multi-value types and regular single types.
-define abstract class <values-ctype> (<identity-preserving-mixin>)
+define open abstract class <values-ctype> (<identity-preserving-mixin>)
   //
   // Memo of the extensional version of this type.
   slot %ctype-extent :: false-or(<values-ctype>) = #f;
 end class;
 
-define sealed domain make (singleton(<values-ctype>));
-define sealed domain initialize (<values-ctype>);
+// define sealed domain make (singleton(<values-ctype>));
+// define sealed domain initialize (<values-ctype>);
 
 
 /// Type function memoization:
@@ -77,12 +77,12 @@ define sealed domain initialize (<values-ctype>);
 // means that == is type equivalence.
 
 
-define abstract class <ctype> (<values-ctype>)
+define abstract open class <ctype> (<values-ctype>)
   constant slot type-hash :: <integer> = random-bits(),
     init-keyword: type-hash:;
 end class;
 
-define sealed domain make (singleton(<ctype>));
+// define sealed domain make (singleton(<ctype>));
 
 // Memoization is done in a vector.  Each entry has four elements: the
 // two arg types, the result type and the result precise flag.  All

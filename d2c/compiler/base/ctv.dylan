@@ -66,13 +66,13 @@ eql-literal [literal, eql-ct-value] {abstract}
 */
 
 
-define abstract class <ct-value> (<annotatable>)
+define abstract open class <ct-value> (<annotatable>)
 end;
 
 define abstract class <literal> (<ct-value>)
 end;
 
-define abstract class <eql-ct-value> (<ct-value>)
+define abstract open class <eql-ct-value> (<ct-value>)
   slot ct-value-singleton :: false-or(<ctype>),
     init-value: #f;
 end;
