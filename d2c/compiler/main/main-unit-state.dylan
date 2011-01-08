@@ -70,6 +70,14 @@ define class <main-unit-state> (<compilation-unit-state>)
   slot unit-tlfs :: <stretchy-vector> = make(<stretchy-vector>);
 end class <main-unit-state>;
 
+// unit-locator
+//
+// A locator for the main file of the unit, i.e., the file necessary
+// to locate all files in this unit.
+//
+define open generic unit-locator
+    (state :: <main-unit-state>) => (locator :: <locator>);
+
 // Find the library object file (archive) using the data-unit search path.
 // There might be more than one possible object file suffix, so we try them
 // all, but if we find it under more than one suffix, we error.

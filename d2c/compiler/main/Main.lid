@@ -9,6 +9,7 @@ Files: main-exports
        lid-mode-state
        testworks-spec
        misc
+       options
        evaluate
        text-du
        main

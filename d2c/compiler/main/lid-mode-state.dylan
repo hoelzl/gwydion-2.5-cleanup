@@ -76,10 +76,15 @@ define class <lid-mode-state> (<main-unit-state>)
   slot unit-executable :: false-or(<byte-string>);
 end class <lid-mode-state>;
 
-define method source-location(state :: <lid-mode-state>)
+define method source-location (state :: <lid-mode-state>)
  => (source-location :: <source-location>)
   make(<file-source-location>, file: state.unit-lid-locator);
 end method source-location;
+
+define method unit-locator
+    (state :: <lid-mode-state>) => (locator :: <file-locator>);
+  state.unit-lid-locator;
+end method unit-locator;
 
 // Internal.  escape-pounds returns the string with any '#' characters
 // converted to an escaped '\#' character combination for use in Makefiles.
