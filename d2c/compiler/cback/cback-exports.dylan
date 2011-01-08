@@ -37,6 +37,7 @@ define library compiler-cback
   use compiler-parser;  // for <macro-source-location>
   export cback;
   export heap;
+  export c-backend;
 end library;
 
 
@@ -171,3 +172,9 @@ define module heap
 
 end;
 
+define module c-backend
+  use common;
+  use utils;
+  use backend;
+
+end module c-backend;

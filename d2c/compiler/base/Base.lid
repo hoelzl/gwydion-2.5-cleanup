@@ -7,6 +7,7 @@ Files: base-exports
        32bit-od-format
        dylan-dump
        backend
+       compilation-unit
        ctv
        source
        tokens

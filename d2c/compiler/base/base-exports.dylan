@@ -43,6 +43,7 @@ define library compiler-base
   export c-representation;
   export classes;
   export common;
+  export compilation-unit;
   export compile-time-functions;
   export compile-time-values;
   export ctype;
@@ -394,6 +395,15 @@ define module backend
     all-compiler-backends, all-compiler-backend-names,
     compiler-backend, compiler-backend-setter;
 end;
+
+define module compilation-unit
+  use common;
+  use utils;
+  use errors;
+
+  export <compilation-unit>;
+  export <compilation-unit-state>;
+end module compilation-unit;
 
 define module platform
   use common;

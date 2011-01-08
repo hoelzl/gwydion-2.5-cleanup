@@ -32,7 +32,7 @@ copyright: see below
 // <unit-state> (but it doesn't.)
 //
 
-define class <main-unit-state> (<object>)
+define class <main-unit-state> (<compilation-unit-state>)
   constant slot unit-command-line-features :: <list>, 
     required-init-keyword: command-line-features:;
   constant slot unit-log-dependencies :: <boolean>, 
