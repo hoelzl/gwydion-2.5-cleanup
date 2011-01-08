@@ -491,6 +491,30 @@ end method;
 
 // Simple utility functions.
 
+// Value used internally by find.  Can be any object that is compared
+// by identity instead of value.
+//
+define constant $find-failure = make(<stretchy-vector>);
+
+// find -- exported.
+//
+// Returns the element in a collection that satisfies predicate.
+//
+// ### This should really be in the standard language.  --tc
+define method find
+    (collection :: <collection>, predicate :: <function>,
+     #key skip :: <integer> = 0, failure = #f)
+ => (result :: <object>);
+  let index = find-key(collection, predicate,
+                       skip: skip, failure: $find-failure);
+  if (index ~== $find-failure)
+    collection[index];
+  else
+    failure;
+  end;
+end method find;
+    
+
 define method dformat(#rest args) => ();
   fresh-line(*debug-output*);
   apply(pretty-format, *debug-output*, args);

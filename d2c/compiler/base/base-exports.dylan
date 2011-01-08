@@ -110,6 +110,7 @@ define module utils
     current-column, fresh-line,
     integer-to-english, ordinal-suffix,
     find-in, size-in,
+    find,
     dformat, 
     <annotatable>, info, info-setter,
     key-of, list?, pair?,
@@ -383,9 +384,14 @@ end;
 
 define module backend
   use common;
+  use utils;
+  use errors;
 
   export
     <compiler-backend>,
+    backend-name,
+    find-backend, register-compiler-backend,
+    all-compiler-backends, all-compiler-backend-names,
     compiler-backend, compiler-backend-setter;
 end;
 
@@ -470,6 +476,11 @@ define module errors
     compiler-error, compiler-error-location, *errors*,
     compiler-fatal-error, compiler-fatal-error-location,
     extract-source;
+
+  export
+    <internal-condition>,
+    <internal-warning>, <internal-error>,
+    internal-warning, internal-error;
 end module;
 
 define module signature-interface
