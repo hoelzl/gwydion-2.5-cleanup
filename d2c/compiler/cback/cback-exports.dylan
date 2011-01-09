@@ -175,6 +175,8 @@ end;
 define module c-backend
   use common;
   use utils;
-  use backend;
+  use compiler;
 
+  export
+    <c-backend>;
 end module c-backend;

@@ -1,4 +1,4 @@
-module: compilation-unit
+module: compiler
 author: Matthias Hölzl
 copyright: see below
 
@@ -29,11 +29,16 @@ copyright: see below
 //
 //======================================================================
 
-// This file defines the class <compilation-unit> which contains the
-// backend-independent information about a compilation unit.  Backends
-// can subclass <compilation-unit> to add additional state.
+// This file defines the class <compilation-unit> which contains
+// information about a compilation unit.  
 
 define abstract open class <compilation-unit> (<object>)
+  slot unit-compiler :: <compiler>,
+    required-init-keyword: compiler:;
+  slot unit-frontend-state :: <compilation-unit-state>,
+    required-init-keyword: frontend-state:;
+  slot unit-backend-state :: <compilation-unit-state>,
+    required-init-keyword: backend-state:;
 end class <compilation-unit>;
 
 define abstract open class <compilation-unit-state> (<object>)

@@ -81,8 +81,7 @@ define module main
   use indenting-streams;
    
   use utils;
-  use backend;
-  use compilation-unit;
+  use compiler;
   use variables;
   use definitions;
   use variable-definitions;

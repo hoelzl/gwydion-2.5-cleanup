@@ -491,6 +491,15 @@ end method;
 
 // Simple utility functions.
 
+define method dformat(#rest args) => ();
+  fresh-line(*debug-output*);
+  apply(pretty-format, *debug-output*, args);
+end;
+
+
+// ### The following collection function should really be in the
+// standard language or at least in their own library.  --tc
+
 // Value used internally by find.  Can be any object that is compared
 // by identity instead of value.
 //
@@ -498,45 +507,63 @@ define constant $find-failure = make(<stretchy-vector>);
 
 // find -- exported.
 //
-// Returns the element in a collection that satisfies predicate.
+// Returns the element in a collection that satisfies predicate and
+// its index in the collection.
 //
-// ### This should really be in the standard language.  --tc
 define method find
     (collection :: <collection>, predicate :: <function>,
      #key skip :: <integer> = 0, failure = #f)
- => (result :: <object>);
+ => (result :: <object>, index :: <object>);
   let index = find-key(collection, predicate,
                        skip: skip, failure: $find-failure);
   if (index ~== $find-failure)
-    collection[index];
+    values(collection[index], index);
   else
-    failure;
+    values(failure, #f);
   end;
 end method find;
-    
 
-define method dformat(#rest args) => ();
-  fresh-line(*debug-output*);
-  apply(pretty-format, *debug-output*, args);
-end;
+// find-member -- exported
+// 
+// Returns the element in a collection whose attribute "key" is equal
+// to "value" when compared with "test".
+//
+define open generic find-member
+    (value :: <object>, collection :: <collection>,
+     #key skip :: <integer> = 0, failure = #f, 
+          key :: <function> = identity, test :: <function> = \==)
+ => (element :: <object>, index :: <object>);
 
+define method find-member
+    (value :: <object>, collection :: <collection>,
+     #key skip :: <integer> = 0, failure = #f, 
+          key :: <function> = identity, test :: <function> = \==)
+ => (element :: <object>, index :: <object>);
+  find(collection, method (e) test(value, key(e)) end,
+       skip: skip, failure: failure);
+end method find-member;
 
-define generic key-of
-  (value, collection :: <collection>, #key test :: <function>, default)
+// key-of -- exported.
+//
+// Returns the key of "value" in "collection".
+//
+define open generic key-of
+  (value, collection :: <collection>,
+   #key test :: <function>, failure :: <object>)
  => res :: <object>;
 
 define method key-of
     (value, coll :: <collection>,
-     #key test :: <function> = \==, default = #f)
+     #key test :: <function> = \==, failure = #f)
  => res :: <object>;
   find-key(coll,
 	   method (x) test(value, x) end,
-	   failure: default)
-end method;
+	   failure: failure)
+end method key-of;
 
 define method key-of
-    (value, coll :: <list>,
-     #key  test :: <function> = \==, default = #f)
+    (value, coll :: <list>, 
+     #key  test :: <function> = \==, failure = #f)
  => res :: <object>;
   block (done)
     for (els = coll then els.tail,
@@ -545,11 +572,13 @@ define method key-of
       if (test(value, els.head))
         done(pos);
       end;
-      finally default;
+      finally failure;
     end for;
   end;
-end method;
+end method key-of;
 
+define sealed domain key-of(<object>, <vector>);
+define sealed domain key-of(<object>, <list>);
 
 define method list?(obj);
   instance?(obj, <list>);
