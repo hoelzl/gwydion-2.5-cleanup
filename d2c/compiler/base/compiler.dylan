@@ -268,7 +268,7 @@ end function active-compiler-setter;
 // straightforward manner.
 //
 define open class <simple-compiler> (<compiler>)
-  slot configuration :: <table> = make(<table>),
+  constant slot configuration :: <table> = make(<table>),
     init-keyword: configuration:;
   slot active-frontend :: <compiler-frontend>,
     required-init-keyword: active-frontend:,
@@ -282,12 +282,20 @@ define open class <simple-compiler> (<compiler>)
     init-keyword: all-backends:;
 end class <simple-compiler>;
 
+define sealed domain configuration (<simple-compiler>);
+define sealed domain active-frontend (<simple-compiler>);
+define sealed domain all-frontends (<simple-compiler>);
+define sealed domain all-frontends-setter (<vector>, <simple-compiler>);
+define sealed domain active-backend (<simple-compiler>);
+define sealed domain all-backends (<simple-compiler>);
+define sealed domain all-backends-setter (<vector>, <simple-compiler>);
 
 // active-frontend-setter -- exported
 //
-// Sets the active frontend, registering it if necessary.
+// Sets the active frontend, throwing an error if it is not
+// registered.
 //
-define method active-frontend-setter
+define sealed method active-frontend-setter
     (new-frontend :: <compiler-frontend>, compiler :: <simple-compiler>,
      #key replace-if-exists? :: <boolean> = #f)
  => (new-frontend :: <compiler-frontend>);
@@ -300,9 +308,9 @@ end method active-frontend-setter;
 
 // active-backend-setter -- exported
 //
-// Sets the active backend, registering it if necessary.
+// Sets the active backend, throwing an error if it is not registered.
 //
-define method active-backend-setter
+define sealed method active-backend-setter
     (new-backend :: <compiler-backend>, compiler :: <simple-compiler>,
      #key replace-if-exists? :: <boolean> = #f)
  => (new-backend :: <compiler-backend>);
