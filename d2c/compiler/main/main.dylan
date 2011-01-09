@@ -77,8 +77,6 @@ define variable *old-debugger* = *debugger*;
 //----------------------------------------------------------------------
 
 define method main (argv0 :: <byte-string>, #rest args) => ();
-  no-core-dumps();
-
   c-decl("extern int GC_expand_hp(size_t number_of_bytes);");
   unless (getenv("D2C_SMALL_MACHINE"))
     c-expr(void: "GC_expand_hp(384*1024*1024)");
